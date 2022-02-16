@@ -1,5 +1,21 @@
 #!/bin/bash -eu
 
+get_version_short() {
+  git describe --tags --dirty 2>/dev/null || echo "v0.0.0"
+}
+
+get_version_long() {
+  git describe --tags --long --dirty 2>/dev/null || echo "v0.0.0-$(git rev-parse --short HEAD)"
+}
+
+trim_version_prefix() {
+  sed -e 's/^v//'
+}
+
+emptydir() {
+  [ ! -e "${1}" ] || [ -z "$(ls ${1})" ]
+}
+
 # set deb package variables
 NAME="${NAME}"
 DESCRIPTION="${DESCRIPTION}"
@@ -7,41 +23,13 @@ MAINTAINER="${MAINTAINER:-sagecontinuum.org}"
 ARCH="${ARCH:-all}"
 PRIORITY="${PRIORITY:-optional}"
 
-print_help() {
-  echo """
-usage: build.sh [-f]
-Create the versioned Debian package.
- -f : force the build to proceed (debugging only) without checking for tagged commit
-"""
-}
-
-FORCE=
-while getopts "f?" opt; do
-  case $opt in
-    f) # force build
-      echo "** Force build: ignore tag depth check **"
-      FORCE=1
-      ;;
-    ?|*)
-      print_help
-      exit 1
-      ;;
-  esac
-done
-
 cd /repo
 
 # determine version
-VERSION_SHORT=$(git describe --tags --dirty | sed s/^v//)
-VERSION_LONG=$(git describe --tags --long --dirty | sed s/^v//)
-
-TAG_DEPTH=$(echo ${VERSION_LONG} | cut -d '-' -f 2)
-if [[ -z "${FORCE}" && "${TAG_DEPTH}_" != "0_" ]]; then
-  echo "Error:"
-  echo "  The current git commit has not been tagged. Please create a new tag first to ensure a proper unique version number."
-  echo "  Use -f to ignore error (for debugging only)."
-  exit 1
-fi
+VERSION_SHORT=$(get_version_short | trim_version_prefix)
+echo "VERSION_SHORT: ${VERSION_SHORT}"
+VERSION_LONG=$(get_version_long | trim_version_prefix)
+echo "VERSION_LONG: ${VERSION_LONG}"
 
 # setup deb build directory
 BASEDIR="$(mktemp -d)"
@@ -56,10 +44,6 @@ Description: ${DESCRIPTION}
 Architecture: ${ARCH}
 Priority: ${PRIORITY}
 EOF
-
-emptydir() {
-  [ ! -e "${1}" ] || [ -z "$(ls ${1})" ]
-}
 
 # add package tools
 if emptydir ROOTFS; then
