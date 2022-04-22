@@ -22,6 +22,7 @@ DESCRIPTION="${DESCRIPTION}"
 MAINTAINER="${MAINTAINER:-sagecontinuum.org}"
 ARCH="${ARCH:-all}"
 PRIORITY="${PRIORITY:-optional}"
+DEPENDS="${DEPENDS:-}"
 
 cd /repo
 
@@ -44,6 +45,12 @@ Description: ${DESCRIPTION}
 Architecture: ${ARCH}
 Priority: ${PRIORITY}
 EOF
+
+if [ -n "${DEPENDS}" ]; then
+  cat >> "$BASEDIR/DEBIAN/control" <<EOF
+Depends: ${DEPENDS}
+EOF
+fi
 
 # add package tools
 if emptydir ROOTFS; then
