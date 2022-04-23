@@ -5,7 +5,11 @@ get_version_short() {
 }
 
 get_version_long() {
-  git describe --tags --long --dirty 2>/dev/null || echo "v0.0.0-$(git rev-parse --short HEAD)"
+  sha=$(git rev-parse --short HEAD)
+  if [ -n "${sha}" ]; then
+    sha="-${sha}"
+  fi
+  git describe --tags --long --dirty 2>/dev/null || echo "v0.0.0${sha}"
 }
 
 trim_version_prefix() {
