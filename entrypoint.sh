@@ -23,7 +23,7 @@ emptydir() {
 # set deb package variables
 NAME="${NAME}"
 DESCRIPTION="${DESCRIPTION}"
-MAINTAINER="${MAINTAINER:-sagecontinuum.org}"
+MAINTAINER="${MAINTAINER:-waggle-edge.ai}"
 ARCH="${ARCH:-all}"
 PRIORITY="${PRIORITY:-optional}"
 DEPENDS="${DEPENDS:-}"
