@@ -70,6 +70,10 @@ if ! emptydir deb/install; then
   cp -p deb/install/* "${BASEDIR}/DEBIAN/"
 fi
 
+pushd ${BASEDIR}
+find * -type f -not -path 'DEBIAN/*' -exec md5sum {} \; > DEBIAN/md5sums
+popd
+
 # build deb in output directory
 mkdir -p output/
 cd output/
