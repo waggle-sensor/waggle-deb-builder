@@ -70,6 +70,11 @@ if ! emptydir deb/install; then
   cp -p deb/install/* "${BASEDIR}/DEBIAN/"
 fi
 
+# execute custom late command
+if [ -n "${LATE_CMD}" ]; then
+  eval ${LATE_CMD} ${BASEDIR}
+fi
+
 pushd ${BASEDIR}
 find * -type f -not -path 'DEBIAN/*' -exec md5sum {} \; > DEBIAN/md5sums
 popd
